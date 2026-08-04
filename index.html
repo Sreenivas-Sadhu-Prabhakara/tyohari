@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/tyohari/">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Log what you ordered for the festival, what it cost, and the day each line ran out — then print next year's ordering sheet with the last three years side by side and a blank quantity column. Free, private, offline. This demo stores nothing.">
+
+  <meta property="og:title" content="Festival stock ordering sheet — tyohari">
+  <meta property="og:description" content="What you ordered, what it cost, and the day it ran out. Three years side by side on one A4 sheet, with the quantity column left deliberately blank.">
+  <meta property="og:type" content="website">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="tyohari">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <title>Festival Stock Order List for a Kirana Shop — tyohari</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+      font-feature-settings: "tnum"; }
+    #seo-landing { max-width: 760px; margin: 0 auto; padding: 24px 20px 8px; line-height: 1.55;
+      color: #211318; background: #FBF6F7; }
+    #seo-landing h1 { font-size: 1.5rem; color: #A31240; margin: 0 0 10px; line-height: 1.25; }
+    #seo-landing h2 { font-size: 1.05rem; margin: 22px 0 6px; }
+    #seo-landing code { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; }
+    #seo-landing table { border-collapse: collapse; width: 100%; font-size: 0.9rem; margin: 8px 0; }
+    #seo-landing th, #seo-landing td { border: 1px solid #8A6A72; padding: 6px 8px; text-align: left; }
+    #seo-landing th { background: #F3DCE3; }
+    #seo-landing .muted { color: #5E4A4F; font-size: 0.9rem; }
+    /* The torana strip — a cord of flags, one filled crimson. The one visual idea. */
+    .torana { display: flex; align-items: flex-start; gap: 9px; border-top: 2px solid #A31240;
+      margin: 14px 0 4px; }
+    .torana i { width: 7px; height: 10px; border: 1.2px solid #A31240; display: block; }
+    .torana i.filled { background: #A31240; }
+    #flutter-app { height: 82vh; min-height: 560px; border-top: 3px solid #A31240; }
+    @media (prefers-color-scheme: dark) {
+      #seo-landing { color: #F2E7EA; background: #171013; }
+      #seo-landing h1 { color: #FF8FA8; }
+      #seo-landing code { background: rgba(255,255,255,0.12); }
+      #seo-landing th, #seo-landing td { border-color: #8A6D75; }
+      #seo-landing th { background: #3A2229; }
+      #seo-landing .muted { color: #B7A4AA; }
+      .torana { border-top-color: #FF8FA8; }
+      .torana i { border-color: #FF8FA8; }
+      .torana i.filled { background: #FF8FA8; }
+      #flutter-app { border-top-color: #FF8FA8; }
+    }
+  </style>
+
+  <!-- The Flutter canvas is not crawlable, so the facts live in real HTML plus
+       JSON-LD. This page loads no third-party script, font, stylesheet or
+       analytics; CanvasKit is vendored beside it and the loader is pinned to the
+       local copy. The one URL the engine can still reach is its font-fallback
+       base, and that is pinned to a same-origin path below. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "tyohari",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web, Windows, macOS, Linux",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+    "description": "A festival stock ordering register for a kirana or provision store. Record what you ordered for each festival, what the wholesaler billed, and per line the date it ran out or a tick that it was still on the shelf a week after the festival day. Then print one A4 ordering sheet with the last three years side by side and a deliberately blank quantity column."
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much stock should I order for Diwali?",
+        "acceptedAnswer": { "@type": "Answer", "text": "tyohari does not answer that, and it will not pretend to. It prints what you ordered the last three times, what each line cost, and what happened to it — and it leaves the quantity column on the printed sheet blank for you to fill in by hand. There is no forecast, no suggested quantity and no order-N-percent-more anywhere in this app. Three years of facts, one pen." }
+      },
+      {
+        "@type": "Question",
+        "name": "What exactly does it record about each line?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Two observations, and only two, both readable off the counter with no stocktake: the date a line finished, or a tick that it had not finished one week after the festival day. It does not measure how much was left or what it was worth, because festival stock in a kirana does not sit in a separate pile waiting to be counted — any leftover-value figure would be invented." }
+      },
+      {
+        "@type": "Question",
+        "name": "What if nobody wrote down the day something ran out?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Leave the line blank. A run-out date is a noticing event, not a measurement: a date recorded three days late looks exactly as precise as one recorded that evening. Unrecorded is a first-class default state, it is never nagged, blank lines show as a dash and are excluded from every count, and the count always prints its denominator — three of four lines recorded, not seventy-five percent." }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does the sheet show two different change percentages?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Because they are not the same number. If you bought 22 kg of ghee last year for 10,340 and 25 kg this year for 12,500, the line cost rose 20.88 percent but the wholesaler's rate went from 470.00 to 500.00 per kg, which is 6.38 percent. A single cost-change column next to a quantity column reads as ghee got 21 percent dearer, which the data does not say. So both print, each labelled with its own basis, and any row whose quantity also moved is marked." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I record Diwali and Chhath at the same time?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. One festival of each NAME is open at a time, not one festival overall. Diwali and Chhath fall six days apart and each needs about four weeks open — you write the order a few weeks before and record what happened a week after — so a shop can have Ganesh Chaturthi, Onam, Navratri, Diwali and Chhath all open through the September-to-November season." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does tyohari know when Diwali is?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No, deliberately. You type the festival name and the date. A shipped festival calendar would be reference data this app cannot fetch, cannot keep current and cannot make regionally neutral, so there is none — and there is no item list either, because that would presume your assortment. The only reference data in the app is a ten-value list of units, which is a convenience and not a claim about anything." }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this a stock or inventory system?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. There is no on-hand quantity, no stock in or out, no reorder level and no shrinkage. It is a twice-a-year register: once a few weeks before the festival to write the order, once a week after to record what happened. Nothing is ever typed during trading hours — the counter's only job is a paper slip with a tick on it." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it do udhaar, khata or customer credit?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No, and it never will. There is no credit or dues ledger of any kind, no customer names and no receivables. There is also no selling price, no margin, no GST and no profit: the cost your wholesaler billed you is the only money in this app, which keeps it out of accounting and out of tax advice." }
+      },
+      {
+        "@type": "Question",
+        "name": "Where does my data go?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Nowhere. The full app is local-first: your data is a SQLite file on your own machine and the app runs on localhost. There is no account, no sync, no encryption and nothing is uploaded. Save backup writes a .json file and Restore reads it back — the round trip is tested, which is why that button says backup. This web demo keeps everything in your browser tab and a refresh resets it." }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <main id="seo-landing">
+    <h1>Festival stock ordering sheet — what you ordered, what it cost, and the day it ran out</h1>
+
+    <div class="torana" aria-hidden="true">
+      <i></i><i></i><i class="filled"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+
+    <p><strong>tyohari</strong> is for the family running a kirana or provision store,
+    sitting at home <strong>twice a year</strong> — once a few weeks before the festival
+    to write the order, once a week after it to record what happened. Nothing here is
+    ever touched during trading hours.</p>
+
+    <h2>What you record</h2>
+    <p>Per line: the item, the quantity, and <strong>what the wholesaler billed</strong>.
+    Then, a week later, one of exactly two observations — both readable off the counter
+    with no stocktake:</p>
+    <ul>
+      <li><strong>it finished</strong> → you write the date;</li>
+      <li><strong>it was still there a week later</strong> → you tick a box.</li>
+    </ul>
+    <p>If nobody noticed, you leave it blank. <strong>A blank line is honest; a guessed
+    date is not.</strong></p>
+
+    <h2>What it prints</h2>
+    <p>One A4 <strong>ordering sheet</strong>: the item table with a
+    <strong>deliberately blank quantity column</strong> and up to three filled year
+    columns beside it, the goods and freight totals, and the limits block. Plus a
+    half-page <strong>counter slip</strong> — item, ordered quantity, and two empty
+    boxes per row (<code>finished on ____</code> and a tick box) — so the observation
+    itself never needs the laptop.</p>
+
+    <h2>A worked example</h2>
+    <p>Ghee went from 22.000 kg at ₹10,340.00 last Diwali to 25.000 kg at ₹12,500.00
+    this one, and ran out two days <em>before</em> the day.</p>
+
+    <table>
+      <thead>
+        <tr><th>Item</th><th>Order this year</th><th>2026</th><th>2025</th><th>Line cost change<br>÷ previous line cost</th><th>Rate change<br>÷ previous rate</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Ghee (Gold Tin)</td>
+          <td>&nbsp;</td>
+          <td>25.000 kg · ₹12,500.00<br>₹500.00 per kg · out −2</td>
+          <td>22.000 kg · ₹10,340.00<br>₹470.00 per kg</td>
+          <td>+20.88%<br>! quantity also changed</td>
+          <td>+6.38%</td>
+        </tr>
+        <tr>
+          <td>Agarbatti</td>
+          <td>&nbsp;</td>
+          <td>100.000 packet · ₹0.00<br>— cost not entered yet · —</td>
+          <td>—</td>
+          <td>—<br>no earlier figure to compare against</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="muted"><strong>Two change columns, because they are not one number.</strong>
+    The line cost rose 20.88%, but you also bought three more kilos: the wholesaler's
+    <em>rate</em> moved 6.38%. A single column headed "cost change" sitting next to a
+    quantity column reads as "ghee got 21% dearer", which the data does not support. So
+    tyohari prints both, each labelled with its own numerator and denominator, and marks
+    every row whose quantity also moved.</p>
+
+    <p class="muted">The Agarbatti row shows the other rule. A cost of zero means
+    <em>not priced yet</em>, not free — so the rate cell prints a dash and says why,
+    never "₹0.00 per packet". And a line that was not on last year's list has nothing to
+    change from, so both change cells print a dash, never a 0 and never "+100%".</p>
+
+    <h2>What it refuses to do</h2>
+    <p>The quantity column on the printed sheet stays <strong>blank</strong>. There is no
+    forecast, no suggested quantity, no "order 15% more", and no verdict of any kind —
+    the outcome vocabulary contains no word like "over-bought", because that judgement is
+    the owner's and the app has no basis for it. The summary is a count with its
+    denominator printed, never a grade.</p>
+
+    <p>There is also no leftover-stock field, on purpose. Festival stock in a kirana does
+    not sit in a separate pile waiting to be counted, so any "₹ of stock left over" number
+    would be invented — and it would be carrying the whole analysis. The run-out date and
+    the week-after tick replace it, and both are observable at the counter.</p>
+
+    <h2>What it will not do</h2>
+    <p>No festival calendar and no item list — <strong>tyohari ships zero rows of data of
+    its own</strong>; every name, date and number is one you typed. No stock or inventory
+    system. No selling price, margin, GST or profit. <strong>No credit, udhaar or dues
+    ledger of any kind</strong>, and no customer names. No staff attendance or wages. No
+    sales entry, no billing, nothing typed during trading hours. No live rates and no
+    internet at runtime. No accounts, no sync, no sharing. No AI and no "smart" anything.</p>
+
+    <p class="muted">This demo page loads only files served beside it — no CDN, no third-party script, font or analytics. CanvasKit is vendored here rather than fetched from Google, and Flutter's font-fallback URL is pinned to this same origin, so a glyph missing from the bundled font renders as a blank box instead of fetching one. The one network request tyohari's desktop build makes is to <code>127.0.0.1</code>, your own machine.</p>
+
+    <h2>Try it below</h2>
+    <p>The register below is loaded with three made-up Diwalis for a shop that does not
+    exist. Edit it, add your own lines, print the sheet — nothing you type leaves this
+    page, and a refresh resets it.</p>
+  </main>
+
+  <div id="flutter-app"></div>
+
+  <script src="flutter.js" defer></script>
+  <!-- buildConfig is injected here at build time from the generated
+       flutter_bootstrap.js (scripts/build-web.sh). Without it the loader throws
+       "requires _flutter.buildConfig" and the app below never mounts. -->
+  <script>window._flutter=window._flutter||{};_flutter.buildConfig = {"engineRevision":"c416acfeb8126e097f758c664aaa3da929e27da0","builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"},{}],"useLocalCanvasKit":true};</script>
+  <script>
+    window.addEventListener("load", function () {
+      _flutter.loader.load({ config: {
+        hostElement: document.getElementById("flutter-app"),
+        // Flutter's font fallback defaults to fonts.gstatic.com and fires when a
+        // glyph is missing from the bundled fonts. Pinned same-origin so this
+        // page reaches no third party; a missing glyph renders as tofu instead.
+        fontFallbackBaseUrl: "assets/fallback-fonts/",
+      } });
+    });
+  </script>
+</body>
+</html>
